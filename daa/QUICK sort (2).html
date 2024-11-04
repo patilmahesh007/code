@@ -1,0 +1,75 @@
+import random
+import time
+
+# Global counters for comparisons in deterministic and randomized quicksort
+deterministic_comparisons = 0
+randomized_comparisons = 0
+
+# Deterministic Quick Sort
+def quicksort_deterministic(arr, low, high):
+    global deterministic_comparisons
+    if low < high:
+        # Partition index
+        pi = partition_deterministic(arr, low, high)
+        quicksort_deterministic(arr, low, pi - 1)
+        quicksort_deterministic(arr, pi + 1, high)
+
+def partition_deterministic(arr, low, high):
+    global deterministic_comparisons
+    pivot = arr[high]
+    i = low - 1
+    for j in range(low, high):
+        deterministic_comparisons += 1  # Count comparison
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+# Randomized Quick Sort
+def quicksort_randomized(arr, low, high):
+    global randomized_comparisons
+    if low < high:
+        # Random partition index
+        pi = partition_randomized(arr, low, high)
+        quicksort_randomized(arr, low, pi - 1)
+        quicksort_randomized(arr, pi + 1, high)
+
+def partition_randomized(arr, low, high):
+    global randomized_comparisons
+    # Randomly select a pivot and swap with the last element
+    rand_pivot = random.randint(low, high)
+    arr[rand_pivot], arr[high] = arr[high], arr[rand_pivot]
+    return partition_deterministic(arr, low, high)
+
+# Main function to execute both variants
+if __name__ == "__main__":
+    # Taking input from the user
+    n = int(input("Enter the number of elements: "))
+    arr = []
+    print("Enter the elements of the array:")
+    for _ in range(n):
+        arr.append(int(input()))
+
+    # Display the original array
+    print("\nOriginal Array:", arr)
+
+    # Deterministic Quick Sort
+    arr_deterministic = arr.copy()
+    start_time = time.time()  # Start timing
+    quicksort_deterministic(arr_deterministic, 0, n - 1)
+    end_time = time.time()  # End timing
+    deterministic_time = end_time - start_time
+    print("\nSorted Array using Deterministic Quick Sort:", arr_deterministic)
+    print("Deterministic Quick Sort Comparisons:", deterministic_comparisons)
+    print("Time taken for Deterministic Quick Sort:", deterministic_time, "seconds")
+
+    # Randomized Quick Sort
+    arr_randomized = arr.copy()
+    start_time = time.time()  # Start timing
+    quicksort_randomized(arr_randomized, 0, n - 1)
+    end_time = time.time()  # End timing
+    randomized_time = end_time - start_time
+    print("\nSorted Array using Randomized Quick Sort:", arr_randomized)
+    print("Randomized Quick Sort Comparisons:", randomized_comparisons)
+    print("Time taken for Randomized Quick Sort:", randomized_time, "seconds")

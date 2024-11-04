@@ -1,0 +1,74 @@
+import heapq
+from collections import defaultdict
+
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+def build_huffman_tree(char_freq):
+    heap = [Node(char, freq) for char, freq in char_freq.items()]
+    heapq.heapify(heap)
+
+    while len(heap) > 1:
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        merged = Node(None, left.freq + right.freq)
+        merged.left = left
+        merged.right = right
+        heapq.heappush(heap, merged)
+
+    return heap[0]
+
+def generate_codes(node, current_code="", codes={}):
+    if node is not None:
+        if node.char is not None:
+            codes[node.char] = current_code
+        generate_codes(node.left, current_code + "0", codes)
+        generate_codes(node.right, current_code + "1", codes)
+    return codes
+
+def huffman_encoding(char_freq):
+    root = build_huffman_tree(char_freq)
+    codes = generate_codes(root)
+    return codes
+
+def encode_data(codes, data):
+    return ''.join(codes[char] for char in data)
+
+if __name__ == "__main__":
+    try:
+        n = int(input("Enter the number of characters: "))
+        char_freq = {}
+
+        for i in range(n):
+            char = input(f"Enter character {i + 1}: ")
+            freq = int(input(f"Enter frequency of character '{char}': "))
+            char_freq[char] = freq
+
+        # Calculate size before encoding
+        original_size = sum(freq for freq in char_freq.values())
+
+        # Generate Huffman codes
+        codes = huffman_encoding(char_freq)
+        print("\nHuffman Codes:")
+        for char, code in codes.items():
+            print(f"Character: {char}, Code: {code}")
+
+        # Encode data
+        data = ''.join(char_freq.keys())
+        encoded_data = encode_data(codes, data)
+        print(f"\nEncoded Data Representation in bits: {encoded_data}")
+
+        # Calculate size after encoding
+        encoded_size = len(encoded_data)
+        print(f"Size before encoding: {original_size} bits")
+        print(f"Size after encoding: {encoded_size} bits")
+
+    except ValueError:
+        print("Please enter valid input.")
